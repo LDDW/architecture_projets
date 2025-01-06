@@ -1,0 +1,36 @@
+- name: install iptables
+  apt:
+    name:
+      - iptables
+      - iptables-persistent
+    state: present
+
+- name: Allow loopback traffic
+  ansible.builtin.command: "iptables -A INPUT -i lo -j ACCEPT"
+
+- name: Allow HTTP traffic (port 80)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 80 -j ACCEPT"
+
+- name: Allow HTTPS traffic (port 443)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 443 -j ACCEPT"
+
+- name: Allow custom SSH port traffic (port 47938)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 47938 -j ACCEPT"
+
+- name: Allow Prometheus traffic (port 9090)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 9090 -j ACCEPT"
+
+- name: Allow Grafana traffic (port 3000)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 3000 -j ACCEPT"
+
+- name: Allow Node Exporter traffic (port 9100)
+  ansible.builtin.command: "iptables -A INPUT -p tcp --dport 9100 -j ACCEPT"
+
+- name: Save iptables rules to persistent storage
+  ansible.builtin.shell: "iptables-save > /etc/iptables/rules.v4"
+
+- name: Ensure iptables-persistent applies rules on boot
+  ansible.builtin.systemd:
+    name: netfilter-persistent
+    enabled: true
+    state: started

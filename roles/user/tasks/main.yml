@@ -1,0 +1,19 @@
+---
+- name: Create a new user
+  when: user is defined
+  user:
+    name: "{{ user }}"
+    comment: "{{ user }}"
+    shell: /usr/bin/bash
+
+- name: Add user to sudoers
+  when: user is defined
+  template:
+    src: templates/sudoers.j2
+    dest: "/etc/sudoers.d/{{ user }}-sudoers"
+
+- name: Add ssh key to user
+  when: user is defined
+  authorized_key:
+    user: "{{ user }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
