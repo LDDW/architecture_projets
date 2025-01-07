@@ -2,8 +2,14 @@
 - name: Installation
   hosts: all
   become: yes
+
   vars: 
     user: "benjamin"
+
+  tasks: 
+    - name: Update apt cache
+      apt:
+        update_cache: yes
 
   roles:
     - firewall
@@ -11,8 +17,3 @@
     - user
     - docker
     - git
-
-  tasks: 
-    - name: Update apt cache
-      apt:
-        update_cache: yes

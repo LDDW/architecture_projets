@@ -2,7 +2,32 @@
 - name: Install git
   apt:
     name: git
-    state: present
+    state: present 
 
-# - name : Clone repositories
-# - name : launch docker-compose
+# where is git on vps : /usr/bin/git
+
+
+# SSH KEY GENERATION FOR 
+# - name: Generate SSH key for accessing GitHub
+#   ansible.builtin.command: 
+#     cmd: "ssh-keygen -t ed25519 -f {{ github_ssh_key_path }} -N '{{ github_ssh_key_encryption_password }}'"
+#     creates: "{{ github_ssh_key_path }}"
+
+# - name: Fetch local target SSH public key
+#   ansible.builtin.slurp: "{{ github_ssh_key_path }}.pub"
+#   register: ssh_pub_key
+
+# - name: Authorize target SSH public key with GitHub
+#   github_deploy_key:
+#     name: Access key for target "{{ target_serial }}"
+#     key: "{{ ssh_pub_key.content }}"
+#     owner: "{{ my_org }}"
+#     read_only: true
+#     repo: "{{ private_repo }}"
+#     token: "{{ github_access_token }}"
+
+# - name: Clone private git repository
+#   git:
+#     repo: "git@github.com:{{ my_org }}/{{ private_repo }}.git"
+#     clone: true
+#     dest: "/path/to/{{ private_repo }}"
