@@ -6,9 +6,9 @@
     user: "benjamin"
 
   roles:
-    # - firewall
-    # - ssh
-    # - user
+    - firewall
+    - ssh
+    - user
     - docker
     - git
 
