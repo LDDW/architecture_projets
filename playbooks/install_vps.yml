@@ -1,0 +1,175 @@
+---
+- name: install vps
+  hosts: install_vps
+  become: yes
+
+  vars_files:
+    - groups_vars/playbooks.yml
+
+  tasks: 
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+    
+    # =============== FIREWALL =============== # 
+    - name: install iptables
+      apt:
+        name:
+          - iptables
+          - iptables-persistent
+        state: present
+
+    - name: Allow loopback traffic
+      ansible.builtin.command: "iptables -A INPUT -i lo -j ACCEPT"
+
+    - name: Allow HTTP traffic (port 80)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 80 -j ACCEPT"
+
+    - name: Allow HTTPS traffic (port 443)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 443 -j ACCEPT"
+
+    - name: Allow custom SSH port traffic (port 47938)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 47938 -j ACCEPT"
+
+    - name: Allow Prometheus traffic (port 9090)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 9090 -j ACCEPT"
+
+    - name: Allow Grafana traffic (port 3000)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 3000 -j ACCEPT"
+
+    - name: Allow Node Exporter traffic (port 9100)
+      ansible.builtin.command: "iptables -A INPUT -p tcp --dport 9100 -j ACCEPT"
+
+    - name: Save iptables rules to persistent storage
+      ansible.builtin.shell: "iptables-save > /etc/iptables/rules.v4"
+
+    - name: Ensure iptables-persistent applies rules on boot
+      ansible.builtin.systemd:
+        name: netfilter-persistent
+        enabled: true
+        state: started
+
+    # =============== SSH =============== # 
+    - name: Save the original sshd_config
+      ansible.builtin.copy:
+        src: /etc/ssh/sshd_config
+        dest: /etc/ssh/sshd_config.orig
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Edit sshd_config - Change SSH port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?Port '
+        line: 'Port 47938'
+        state: present
+        backup: yes
+
+    - name: Edit sshd_config - Disable root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin '
+        line: 'PermitRootLogin no'
+        state: present
+        backup: yes
+
+    - name: Edit sshd_config - Enable PubkeyAuthentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication '
+        line: 'PubkeyAuthentication yes'
+        state: present
+        backup: yes
+
+    - name: Edit sshd_config - Disable empty passwords
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitEmptyPasswords '
+        line: 'PermitEmptyPasswords no'
+        state: present
+        backup: yes
+
+    - name: Edit sshd_config - ClientAliveInterval
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?ClientAliveInterval '
+        line: 'ClientAliveInterval 300'
+        state: present
+        backup: yes
+
+    - name: Edit sshd_config - ClientAliveCountMax
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?ClientAliveCountMax '
+        line: 'ClientAliveCountMax 2'
+        state: present
+        backup: yes
+
+    - name: Redémarrer le service sshd
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
+    # =============== USER =============== #
+    - name: Create a new user
+      when: user is defined
+      user:
+        name: "{{ user }}"
+        comment: "{{ user }}"
+        shell: /usr/bin/bash
+
+    - name: Add user to sudoers
+      when: user is defined
+      template:
+        src: templates/sudoers.j2
+        dest: "/etc/sudoers.d/{{ user }}-sudoers"
+
+    - name: Add ssh key to user
+      when: user is defined
+      authorized_key:
+        user: "{{ user }}"
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
+
+    # =============== DOCKER =============== # 
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
+        state: present
+
+    - name: Install Docker Engine
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+
+    - name: Add user to docker group
+      user:
+        name: "{{ user }}"
+        groups: docker
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+
+    # =============== GIT =============== #
+    - name: Install git
+      apt:
+        name: git
+        state: present

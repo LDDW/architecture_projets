@@ -1,0 +1,47 @@
+---
+- name: Deploy projects
+  hosts: deploy
+  become: yes
+
+  vars_files:
+    - groups_vars/playbooks.yml
+
+  tasks:
+    # =============== GIT =============== #
+    - name: Include git repos
+      include_vars: git_repos.yml
+
+    - name: Clone repos
+      git:
+        repo: "{{ item.repo }}"
+        dest: "{{ item.dest }}"
+        update: yes
+      with_items: "{{ git_repos }}"
+
+    # =============== DOCKER =============== #
+    - name: Create config directories
+      file:
+        path: "/home/{{user}}/{{ item }}"
+        state: directory
+        owner: {{ user }}
+        group: {{ user }}
+        mode: "0755"
+      with_items:
+        - "traefik"
+        - "prometheus"
+        - "grafana"
+        - "crowdsec"
+
+    - name: Copy files and folders
+      copy:
+        src:
+        dest: "/home/{{user}}/{{ item }}"
+        owner:
+        group:
+        mode: "0644"
+      with_items:
+        - 
+        - "traefik/traefik.yml"
+        - "prometheus/prometheus.yml"
+
+    - name: Start Docker Compose
