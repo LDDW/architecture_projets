@@ -4,12 +4,12 @@
   become: yes
 
   vars_files:
-    - groups_vars/playbooks.yml
+    - ../groups_vars/playbooks.yml
 
   tasks:
     # =============== GIT =============== #
     - name: Include git repos
-      include_vars: git_repos.yml
+      include_vars: ../git_repos.yml
 
     - name: Clone repos
       git:
@@ -23,25 +23,51 @@
       file:
         path: "/home/{{user}}/{{ item }}"
         state: directory
-        owner: {{ user }}
-        group: {{ user }}
+        owner: "{{ user }}"
+        group: "{{ user }}"
         mode: "0755"
       with_items:
         - "traefik"
         - "prometheus"
         - "grafana"
         - "crowdsec"
+        - "k6"
 
-    - name: Copy files and folders
+    - name: Copy docker-compose.yaml to server
       copy:
-        src:
-        dest: "/home/{{user}}/{{ item }}"
-        owner:
-        group:
-        mode: "0644"
-      with_items:
-        - 
-        - "traefik/traefik.yml"
-        - "prometheus/prometheus.yml"
+        src: /Users/benjamin/Documents/VSCODE/architecture_projets/docker-compose.yaml
+        dest: /home/benjamin/docker-compose.yml
+        owner: benjamin
+        group: benjamin
+        mode: '0644'
+
+    - name: Copy Traefik configuration to server
+      copy:
+        src: /Users/benjamin/Documents/VSCODE/architecture_projets/roles/traefik/traefik.yml
+        dest: /home/benjamin/traefik/traefik.yml
+        owner: benjamin
+        group: benjamin
+        mode: '0644'
+
+    - name: Copy Prometheus configuration to server
+      copy:
+        src: /Users/benjamin/Documents/VSCODE/architecture_projets/roles/prometheus/prometheus.yml
+        dest: /home/benjamin/prometheus/prometheus.yml
+        owner: benjamin
+        group: benjamin
+        mode: '0644'
+
+    - name: Copy K6 configuration to server
+      copy:
+        src: /Users/benjamin/Documents/VSCODE/architecture_projets/roles/k6/stress-test.js
+        dest: /home/benjamin/k6/stress-test.js
+        owner: benjamin
+        group: benjamin
+        mode: '0644'
 
     - name: Start Docker Compose
+      become: yes
+      become_user: benjamin
+      command: docker compose -f /home/benjamin/docker-compose.yml up -d
+      args:
+        chdir: /home/benjamin

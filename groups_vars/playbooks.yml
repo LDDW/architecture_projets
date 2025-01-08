@@ -1,3 +1,2 @@
 ---
-vars: 
-  user: "benjamin"
+user: "benjamin"

@@ -1,6 +1,5 @@
+---
 git_repos:
-  - repo: "https://github.com/LDDW/monitoring_server.git"
-    dest: "/home/benjamin/monitoring"
   - repo: "https://github.com/LDDW/website_1.git"
     dest: "/home/benjamin/website_1"
   - repo: "https://github.com/LDDW/website_2.git"
