@@ -1,0 +1,10 @@
+---
+- name: Update projects
+  hosts: update_vps
+  become: yes
+
+  vars_files:
+    - ../groups_vars/playbooks.yml
+
+  tasks:
+    

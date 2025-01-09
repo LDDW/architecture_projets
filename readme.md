@@ -4,7 +4,7 @@
 
 Pour lancer la configuration, exécutez :
 
-```ssh
+```sh
 ansible-playbook -i inventory/hosts.ini playbooks/install_vps.yml
 ```
 
@@ -12,6 +12,12 @@ ansible-playbook -i inventory/hosts.ini playbooks/install_vps.yml
 
 Pour ajouter des projets au vps, exécutez :
 
-```ssh
+```sh
 ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml
-``
+```
+
+## Problème avec la clé ssh
+
+```sh
+nano ~/.ssh/known_hosts  
+```
