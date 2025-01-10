@@ -7,4 +7,7 @@
     - ../groups_vars/playbooks.yml
 
   tasks:
+    - name: Clone all projects
+    - name: Update all projects
+    - name: Restart all projects with docker compose
     

@@ -5,6 +5,7 @@ services:
     command:
       - "--log.level=DEBUG"
       - "--api.insecure=true"
+      - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entryPoints.web.address=:80"
@@ -12,8 +13,6 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=postmaster@example.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - --experimental.plugins.crowdsec-bouncer.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-      - --experimental.plugins.crowdsec-bouncer.version=v1.2.1
     ports:
       - "80:80"
       - "8080:8080"
@@ -21,7 +20,7 @@ services:
     volumes:
       - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - "./traefik/traefik.yml:/etc/traefik/traefik.yml"  
     networks:
       - web
 
@@ -86,7 +85,7 @@ services:
       - "./serveur/website_1:/usr/share/nginx/html/website_1"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app1.rule=Host(`31.207.34.243`) && PathPrefix(`/app1`)"
+      - "traefik.http.routers.app1.rule=Host(`45.147.98.249`) && PathPrefix(`/app1`)"
       - "traefik.http.routers.app1.entrypoints=websecure"
       - "traefik.http.routers.app1.tls.certresolver=myresolver"
     ports:
@@ -102,13 +101,17 @@ services:
       - "./serveur/website_2:/usr/share/nginx/html/website_2"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app2.rule=Host(`31.207.34.243`) && PathPrefix(`/app2`)"
+      - "traefik.http.routers.app2.rule=Host(`45.147.98.249`) && PathPrefix(`/app2`)"
       - "traefik.http.routers.app2.entrypoints=websecure"
       - "traefik.http.routers.app2.tls.certresolver=myresolver"
     ports:
       - "8082:80"
     networks:
       - web
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
 
 networks:
   web:

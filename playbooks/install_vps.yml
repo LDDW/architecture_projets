@@ -168,6 +168,23 @@
         name: docker
         state: started
 
+    # =============== CTOP =============== #
+    - name: Vérifier si wget est installé
+      apt:
+        name: wget
+        state: present
+
+    - name: Télécharger ctop depuis GitHub
+      get_url:
+        url: https://github.com/bcicen/ctop/releases/download/v0.7.7/ctop-0.7.7-linux-amd64
+        dest: /usr/local/bin/ctop
+        mode: '0755'
+
+    - name: Vérifier que ctop est correctement installé
+      command: ctop -v
+      register: ctop_version
+      failed_when: ctop_version.rc != 0
+
     # =============== GIT =============== #
     - name: Install git
       apt:
