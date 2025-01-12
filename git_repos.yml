@@ -1,6 +1,6 @@
 ---
 git_repos:
   - repo: "https://github.com/LDDW/website_1.git"
-    dest: "/home/benjamin/website_1"
+    dest: "website_1"
   - repo: "https://github.com/LDDW/website_2.git"
-    dest: "/home/benjamin/website_2"
+    dest: "website_2"
