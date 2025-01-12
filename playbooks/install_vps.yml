@@ -190,14 +190,6 @@
         group: benjamin
         mode: '0644'
 
-    - name: Copy Traefik configuration to server
-      copy:
-        src: /Users/benjamin/Documents/VSCODE/architecture_projets/roles/traefik/traefik.yml
-        dest: /home/benjamin/traefik/traefik.yml
-        owner: benjamin
-        group: benjamin
-        mode: '0644'
-
     - name: Copy Prometheus configuration to server
       copy:
         src: /Users/benjamin/Documents/VSCODE/architecture_projets/roles/prometheus/prometheus.yml
@@ -213,6 +205,9 @@
         owner: benjamin
         group: benjamin
         mode: '0644'
+
+    - name: Create Docker network
+      command: docker network create web
 
     # =============== CTOP =============== #
     - name: Vérifier si wget est installé
@@ -248,7 +243,6 @@
       with_items: "{{ git_repos }}"
 
     # =============== DOCKER =============== #
-
     - name: Start Docker Compose
       become: yes
       become_user: benjamin

@@ -19,5 +19,5 @@ ansible-playbook -i inventory/hosts.ini playbooks/deploy.yml
 ## Problème avec la clé ssh
 
 ```sh
-nano ~/.ssh/known_hosts  
+nano ~/.ssh/known_hosts
 ```
