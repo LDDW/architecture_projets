@@ -82,7 +82,7 @@ services:
     image: "nginx:alpine"
     container_name: "app1"
     volumes:
-      - "./serveur/website_1:/usr/share/nginx/html/website_1"
+      - "./projects/website_1:/usr/share/nginx/html/website_1"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app1.rule=Host(`45.147.98.249`) && PathPrefix(`/app1`)"
@@ -98,7 +98,7 @@ services:
     image: "nginx:alpine"
     container_name: "app2"
     volumes:
-      - "./serveur/website_2:/usr/share/nginx/html/website_2"
+      - "./projects/website_2:/usr/share/nginx/html/website_2"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app2.rule=Host(`45.147.98.249`) && PathPrefix(`/app2`)"

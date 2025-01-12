@@ -197,9 +197,9 @@
     - name: Clone repos
       git:
         repo: "{{ item.repo }}"
-        dest: "{{ item.dest }}"
+        dest: "/home/{{user}}/projects/{{ item.dest }}"
         update: yes
-      with_items: "{{ git_repos }}"
+      with_items: "{{ git_repos }}" 
 
     # =============== DOCKER =============== #
     - name: Create config directories
